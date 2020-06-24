@@ -1,0 +1,16 @@
+# Dependency directories
+node_modules/
+
+# dotenv environment variables file
+.env
+.env.test
+
+# TypeScript cache
+*.tsbuildinfo
+
+
+# Logs
+logs
+*.log
+npm-debug.log*
+

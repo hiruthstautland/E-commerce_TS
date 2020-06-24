@@ -1,0 +1,25 @@
+{
+  "name": "e-commerce_js",
+  "version": "1.0.0",
+  "description": "An e-commerce site with a content manager system",
+  "main": "index.js",
+  "dependencies": {},
+  "devDependencies": {
+    "typescript": "^3.9.5"
+  },
+  "scripts": {
+    "start": "node .",
+    "test": "test",
+    "build": "tsc"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/hiruthstautland/E-commerce_VanillaJS.git"
+  },
+  "author": "HMS",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/hiruthstautland/E-commerce_VanillaJS/issues"
+  },
+  "homepage": "https://github.com/hiruthstautland/E-commerce_VanillaJS#readme"
+}
