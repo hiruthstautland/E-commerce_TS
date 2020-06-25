@@ -2,9 +2,10 @@
   "name": "e-commerce_js",
   "version": "1.0.0",
   "description": "An e-commerce site with a content manager system",
-  "main": "index.js",
+  "main": "./dist/test.js",
   "dependencies": {},
   "devDependencies": {
+    "@types/node": "^14.0.14",
     "typescript": "^3.9.5"
   },
   "scripts": {

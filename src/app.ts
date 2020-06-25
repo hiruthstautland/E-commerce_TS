@@ -7,17 +7,17 @@ const cartOverlay = document.getElementById("cartOverlay");
 const cartItems = document.getElementById("cartItems");
 const cartTotal = document.getElementById("cartTotal");
 const cartContent = document.getElementById("cartContent");
-const productsDOM = document.getElementById("productCenter");
+const productsDOM = <HTMLElement>document.getElementById("productCenter");
 
 let shoppingCart = [];
 
-// Getting products
+// Getting products TODO: avoid casting to any
 class Products {
   async getProducts() {
     try {
       let result = await fetch("./mockDB/products.json");
       let resultJSON = await result.json();
-      return resultJSON.items.map((item) => {
+      return resultJSON.items.map((item: any) => {
         return {
           id: item.sys.id,
           title: item.fields.title,
@@ -31,15 +31,15 @@ class Products {
   }
 }
 
-// Displaying Products
+// Displaying Products  - TODO: avoid casting to any
 class UserInterface {
-  displayProducts(products) {
-    products.map((product) => {
+  displayProducts(products: Array<object>) {
+    products.map((product: any) => {
       productsDOM.insertAdjacentHTML(
         "beforeend",
         `<article class="product" id=${product.id}>
         <div class="img-container">
-            <img src=${product.image} alt=${products.title} class="product-img" />
+            <img src=${product.image} alt=${product.title} class="product-img" />
             <button class="bag-btn" data-id=${product.id}>
                 <i class="fas fa-shopping-cart" aria-hidden="true"></i>
                 Add to cart
