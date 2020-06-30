@@ -9,8 +9,8 @@ const cartTotal = document.getElementById("cartTotal");
 const cartContent = document.getElementById("cartContent");
 const productsDOM = <HTMLElement>document.getElementById("productCenter");
 
-let shoppingCart = [];
-
+let shoppingCart: object[] = [];
+let imgBtnsDOM: object[] = [];
 // Getting products TODO: avoid casting to any
 class Products {
   async getProducts() {
@@ -29,8 +29,8 @@ class Products {
       console.log(err);
     }
   }
+  setProducts() {}
 }
-
 // Displaying Products  - TODO: avoid casting to any
 class UserInterface {
   displayProducts(products: Array<object>) {
@@ -40,7 +40,7 @@ class UserInterface {
         `<article class="product" id=${product.id}>
         <div class="img-container">
             <img src=${product.image} alt=${product.title} class="product-img" />
-            <button class="bag-btn" data-id=${product.id}>
+            <button class="img-btn" data-id=${product.id}>
                 <i class="fas fa-shopping-cart" aria-hidden="true"></i>
                 Add to cart
             </button>
@@ -51,10 +51,52 @@ class UserInterface {
       );
     });
   }
+
+  getBagBtn() {
+    const imgButtons = [...document.querySelectorAll(".img-btn")];
+    imgBtnsDOM = imgButtons;
+    imgButtons.forEach((btn: any) => {
+      let id = btn.dataset.id;
+      // checks if clicked product is in shopping cart
+      let inShoppingCart = shoppingCart.find((item: any) => item.id === id);
+      if (inShoppingCart) {
+        btn.innerText = `${id} is in cart`;
+        btn.disabled = true;
+        // TODO: open cart if clicked
+      }
+      btn.addEventListener("click", (e: any) => {
+        e.target.innerText = "in Cart";
+        e.target.disabled = true;
+        // get product from prod storage
+        let shoppingCartItem = { ...LocalStorage.getProduct(id), amount: 1 };
+        // add product to shopping cart and to cart storage
+        shoppingCart.push(shoppingCartItem)
+        // shoppingCart = [...shoppingCart, shoppingCartItem];
+        // set cart obj
+        console.log(shoppingCart);
+        LocalStorage.setShoppingCart();
+        // display cart item
+        // show the cart
+      });
+    });
+  }
 }
 
 // Local Storage
-class LocalStorage {}
+class LocalStorage {
+  static saveProducts(products: object) {
+    localStorage.setItem("products", JSON.stringify(products));
+  }
+  static getProduct(id: string) {
+    let products: object[] = JSON.parse(
+      localStorage.getItem("products") || "{}"
+    );
+    return products.find((product: any) => product.id === id);
+  }
+  static setShoppingCart() {
+    localStorage.setItem("shoppingCart", JSON.stringify(shoppingCart));
+  }
+}
 
 // Listner, create instances once DOM Content is Loaded
 document.addEventListener("DOMContentLoaded", () => {
@@ -62,5 +104,13 @@ document.addEventListener("DOMContentLoaded", () => {
   const products = new Products();
 
   // Products
-  products.getProducts().then((data) => ui.displayProducts(data));
+  products
+    .getProducts()
+    .then((data) => {
+      ui.displayProducts(data);
+      LocalStorage.saveProducts(data);
+    })
+    .then(() => {
+      ui.getBagBtn();
+    });
 });

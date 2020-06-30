@@ -11,7 +11,7 @@
   "scripts": {
     "start": "node .",
     "test": "test",
-    "build": "tsc"
+    "build": "tsc --watch"
   },
   "repository": {
     "type": "git",

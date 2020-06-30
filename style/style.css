@@ -99,6 +99,7 @@ body {
 .products {
   padding: 4rem 0;
 }
+/* END: HERO */
 .section-title h2 {
   text-align: center;
   font-size: 2.5rem;
@@ -119,7 +120,7 @@ body {
   position: relative;
   overflow: hidden;
 }
-.bag-btn {
+.img-btn {
   position: absolute;
   top: 70%;
   right: 0;
@@ -133,13 +134,13 @@ body {
   transform: translateX(101%);
   cursor: pointer;
 }
-.bag-btn:hover {
+.img-btn:hover {
   color: var(--mainWhite);
 }
 .fa-shopping-cart {
   margin-right: 0.5rem;
 }
-.img-container:hover .bag-btn {
+.img-container:hover .img-btn {
   transform: translateX(0);
 }
 .product-img {
