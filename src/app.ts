@@ -1,16 +1,26 @@
-const cartBtn = document.getElementById("cartBtn");
-const closeCartBtn = document.getElementById("closeCartBtn");
-const clearCartBtn = document.getElementById("clearCartBtn");
-const cartDOM = document.getElementById("cart");
-const cartOverlay = document.getElementById("cartOverlay");
+"use strict";
 
-const cartItems = document.getElementById("cartItems");
-const cartTotal = document.getElementById("cartTotal");
-const cartContent = document.getElementById("cartContent");
-const productsDOM = <HTMLElement>document.getElementById("productCenter");
+const cartBtn = <HTMLButtonElement>document.getElementById("cartBtn");
+const closeCartBtn = <HTMLButtonElement>document.getElementById("closeCartBtn");
+const clearCartBtn = <HTMLButtonElement>document.getElementById("clearCartBtn");
+const cartDOM = <HTMLDivElement>document.getElementById("cart");
+const cartOverlay = <HTMLDivElement>document.getElementById("cartOverlay");
 
-let shoppingCart: object[] = [];
-let imgBtnsDOM: object[] = [];
+const cartItems = <HTMLSpanElement>document.getElementById("cartItems");
+const cartTotal = <HTMLSpanElement>document.getElementById("cartTotal");
+const cartContent = <HTMLDivElement>document.getElementById("cartContent");
+const productsDOM = <HTMLDivElement>document.getElementById("productCenter");
+
+interface Item {
+  id?: number;
+  title?: string;
+  price?: number;
+  amount?: number;
+  image?: string;
+}
+
+let shoppingCart: Array<Item> = [];
+let imgBtnsDOM: Array<object> = [];
 // Getting products TODO: avoid casting to any
 class Products {
   async getProducts() {
@@ -29,12 +39,25 @@ class Products {
       console.log(err);
     }
   }
-  setProducts() {}
 }
 // Displaying Products  - TODO: avoid casting to any
 class UserInterface {
-  displayProducts(products: Array<object>) {
-    products.map((product: any) => {
+  runApplication() {
+    shoppingCart = [LocalStorage.getShoppingCart()];
+    this.setShoopingCartValues(shoppingCart);
+    this.populateShoppingCart(shoppingCart);
+    // combine hide and show functions so one can toggle
+    closeCartBtn.addEventListener("click", this.hideShoppingCart);
+    cartBtn.addEventListener("click", this.showShoppingCart);
+    clearCartBtn.addEventListener("click", this.clearShoppingCart);
+  }
+
+  populateShoppingCart(shoppingCart: Array<Item>) {
+    shoppingCart.forEach((item) => this.addCartItem(item));
+  }
+
+  displayProducts(products: Array<Item>) {
+    products.map((product: Item) => {
       productsDOM.insertAdjacentHTML(
         "beforeend",
         `<article class="product" id=${product.id}>
@@ -52,15 +75,16 @@ class UserInterface {
     });
   }
 
-  getBagBtn() {
+  getImgBtn() {
     const imgButtons = [...document.querySelectorAll(".img-btn")];
     imgBtnsDOM = imgButtons;
+
     imgButtons.forEach((btn: any) => {
       let id = btn.dataset.id;
       // checks if clicked product is in shopping cart
-      let inShoppingCart = shoppingCart.find((item: any) => item.id === id);
+      let inShoppingCart = shoppingCart.find((item: Item) => item.id === id);
       if (inShoppingCart) {
-        btn.innerText = `${id} is in cart`;
+        btn.innerText = `In cart`;
         btn.disabled = true;
         // TODO: open cart if clicked
       }
@@ -70,15 +94,64 @@ class UserInterface {
         // get product from prod storage
         let shoppingCartItem = { ...LocalStorage.getProduct(id), amount: 1 };
         // add product to shopping cart and to cart storage
-        shoppingCart.push(shoppingCartItem)
+        shoppingCart.push(shoppingCartItem);
         // shoppingCart = [...shoppingCart, shoppingCartItem];
-        // set cart obj
-        console.log(shoppingCart);
-        LocalStorage.setShoppingCart();
-        // display cart item
+        LocalStorage.setShoppingCart(shoppingCartItem);
+        // set cart values
+        this.setShoopingCartValues(shoppingCart);
+        // display cart items
+        this.addCartItem(shoppingCartItem);
         // show the cart
+        this.showShoppingCart();
       });
     });
+  }
+
+  setShoopingCartValues(shoppingCart: Array<Item>) {
+    let valueTotal: number = 0;
+    let itemsTotal: number = 0;
+
+    shoppingCart.map((item: Item) => {
+      valueTotal += item.price! * item.amount!;
+      itemsTotal += item.amount!;
+    });
+    cartTotal.innerText = valueTotal.toFixed(2);
+    cartItems.innerText = itemsTotal.toString();
+  }
+
+  addCartItem(item: Item) {
+    const div = <HTMLDivElement>document.createElement("div");
+    div.classList.add("cart-item");
+    div.innerHTML = `
+      <img src="${item.image}" alt="${item.title}" />
+      <div>
+        <h4>${item.title}</h4>
+        <h4<${item.price}</h4>
+        <span class="remove-item" data-id=${item.id}>remove item</span>
+      </div>
+      <div>
+        <i class="fas fa-chevron-up" data-id${item.id}></i>
+        <p class="item-amount">${item.amount}</p>
+        <i class="fas fa-chevron-down" data-id"${item.id}></i>
+      </div>`;
+    cartContent.appendChild(div);
+  }
+
+  showShoppingCart() {
+    cartOverlay.classList.add("transparentBg");
+    cartDOM.classList.add("showCart");
+  }
+
+  hideShoppingCart() {
+    cartOverlay.classList.remove("transparentBg");
+    cartDOM.classList.remove("showCart");
+  }
+
+  clearShoppingCart() {
+    LocalStorage.setShoppingCart({});
+    cartContent.innerHTML = "";
+    shoppingCart = [];
+    this.setShoopingCartValues(shoppingCart);
   }
 }
 
@@ -93,8 +166,13 @@ class LocalStorage {
     );
     return products.find((product: any) => product.id === id);
   }
-  static setShoppingCart() {
-    localStorage.setItem("shoppingCart", JSON.stringify(shoppingCart));
+  static setShoppingCart(shoppingCartItem: object) {
+    localStorage.setItem("shoppingCart", JSON.stringify(shoppingCartItem));
+  }
+  static getShoppingCart() {
+    return localStorage.getItem("shoppingCart")
+      ? JSON.parse(localStorage.getItem("shoppingCart") || "{}")
+      : [];
   }
 }
 
@@ -102,7 +180,8 @@ class LocalStorage {
 document.addEventListener("DOMContentLoaded", () => {
   const ui = new UserInterface();
   const products = new Products();
-
+  // Run App
+  ui.runApplication();
   // Products
   products
     .getProducts()
@@ -111,6 +190,6 @@ document.addEventListener("DOMContentLoaded", () => {
       LocalStorage.saveProducts(data);
     })
     .then(() => {
-      ui.getBagBtn();
+      ui.getImgBtn();
     });
 });

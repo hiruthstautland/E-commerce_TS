@@ -1,6 +1,7 @@
 // check if local storage is available 
 // check if user is logged in
 // check if 
+// go through typescript type any
 
 // @ts-ignore comment above a 
 line in your code for TypeScript to ignore it.

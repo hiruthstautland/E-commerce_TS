@@ -40,10 +40,21 @@ class Products {
             }
         });
     }
-    setProducts() { }
 }
 // Displaying Products  - TODO: avoid casting to any
 class UserInterface {
+    runApplication() {
+        shoppingCart = [LocalStorage.getShoppingCart()];
+        this.setShoopingCartValues(shoppingCart);
+        this.populateShoppingCart(shoppingCart);
+        // combine hide and show functions so one can toggle
+        closeCartBtn.addEventListener("click", this.hideShoppingCart);
+        cartBtn.addEventListener("click", this.showShoppingCart);
+        clearCartBtn.addEventListener("click", this.clearShoppingCart);
+    }
+    populateShoppingCart(shoppingCart) {
+        shoppingCart.forEach((item) => this.addCartItem(item));
+    }
     displayProducts(products) {
         products.map((product) => {
             productsDOM.insertAdjacentHTML("beforeend", `<article class="product" id=${product.id}>
@@ -59,7 +70,7 @@ class UserInterface {
     </article>`);
         });
     }
-    getBagBtn() {
+    getImgBtn() {
         const imgButtons = [...document.querySelectorAll(".img-btn")];
         imgBtnsDOM = imgButtons;
         imgButtons.forEach((btn) => {
@@ -67,7 +78,7 @@ class UserInterface {
             // checks if clicked product is in shopping cart
             let inShoppingCart = shoppingCart.find((item) => item.id === id);
             if (inShoppingCart) {
-                btn.innerText = `${id} is in cart`;
+                btn.innerText = `In cart`;
                 btn.disabled = true;
                 // TODO: open cart if clicked
             }
@@ -79,13 +90,56 @@ class UserInterface {
                 // add product to shopping cart and to cart storage
                 shoppingCart.push(shoppingCartItem);
                 // shoppingCart = [...shoppingCart, shoppingCartItem];
-                // set cart obj
-                console.log(shoppingCart);
-                LocalStorage.setShoppingCart();
-                // display cart item
+                LocalStorage.setShoppingCart(shoppingCartItem);
+                // set cart values
+                this.setShoopingCartValues(shoppingCart);
+                // display cart items
+                this.addCartItem(shoppingCartItem);
                 // show the cart
+                this.showShoppingCart();
             });
         });
+    }
+    setShoopingCartValues(shoppingCart) {
+        let valueTotal = 0;
+        let itemsTotal = 0;
+        shoppingCart.map((item) => {
+            valueTotal += item.price * item.amount;
+            itemsTotal += item.amount;
+        });
+        cartTotal.innerText = valueTotal.toFixed(2);
+        cartItems.innerText = itemsTotal.toString();
+    }
+    addCartItem(item) {
+        const div = document.createElement("div");
+        div.classList.add("cart-item");
+        div.innerHTML = `
+      <img src="${item.image}" alt="${item.title}" />
+      <div>
+        <h4>${item.title}</h4>
+        <h4<${item.price}</h4>
+        <span class="remove-item" data-id=${item.id}>remove item</span>
+      </div>
+      <div>
+        <i class="fas fa-chevron-up" data-id${item.id}></i>
+        <p class="item-amount">${item.amount}</p>
+        <i class="fas fa-chevron-down" data-id"${item.id}></i>
+      </div>`;
+        cartContent.appendChild(div);
+    }
+    showShoppingCart() {
+        cartOverlay.classList.add("transparentBg");
+        cartDOM.classList.add("showCart");
+    }
+    hideShoppingCart() {
+        cartOverlay.classList.remove("transparentBg");
+        cartDOM.classList.remove("showCart");
+    }
+    clearShoppingCart() {
+        LocalStorage.setShoppingCart({});
+        cartContent.innerHTML = "";
+        shoppingCart = [];
+        this.setShoopingCartValues(shoppingCart);
     }
 }
 // Local Storage
@@ -97,14 +151,21 @@ class LocalStorage {
         let products = JSON.parse(localStorage.getItem("products") || "{}");
         return products.find((product) => product.id === id);
     }
-    static setShoppingCart() {
-        localStorage.setItem("shoppingCart", JSON.stringify(shoppingCart));
+    static setShoppingCart(shoppingCartItem) {
+        localStorage.setItem("shoppingCart", JSON.stringify(shoppingCartItem));
+    }
+    static getShoppingCart() {
+        return localStorage.getItem("shoppingCart")
+            ? JSON.parse(localStorage.getItem("shoppingCart") || "{}")
+            : [];
     }
 }
 // Listner, create instances once DOM Content is Loaded
 document.addEventListener("DOMContentLoaded", () => {
     const ui = new UserInterface();
     const products = new Products();
+    // Run App
+    ui.runApplication();
     // Products
     products
         .getProducts()
@@ -113,6 +174,6 @@ document.addEventListener("DOMContentLoaded", () => {
         LocalStorage.saveProducts(data);
     })
         .then(() => {
-        ui.getBagBtn();
+        ui.getImgBtn();
     });
 });
