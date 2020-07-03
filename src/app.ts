@@ -20,7 +20,7 @@ interface Item {
 }
 
 let shoppingCart: Array<Item> = [];
-let imgBtnsDOM: Array<object> = [];
+let addToCartBtn: Array<object> = [];
 // Getting products TODO: avoid casting to any
 class Products {
   async getProducts() {
@@ -49,7 +49,6 @@ class UserInterface {
     // combine hide and show functions so one can toggle
     closeCartBtn.addEventListener("click", this.hideShoppingCart);
     cartBtn.addEventListener("click", this.showShoppingCart);
-    clearCartBtn.addEventListener("click", this.clearShoppingCart);
   }
 
   populateShoppingCart(shoppingCart: Array<Item>) {
@@ -77,7 +76,7 @@ class UserInterface {
 
   getImgBtn() {
     const imgButtons = [...document.querySelectorAll(".img-btn")];
-    imgBtnsDOM = imgButtons;
+    addToCartBtn = imgButtons;
 
     imgButtons.forEach((btn: any) => {
       let id = btn.dataset.id;
@@ -130,9 +129,13 @@ class UserInterface {
         <span class="remove-item" data-id=${item.id}>remove item</span>
       </div>
       <div>
+      <button class=" add-amount">
         <i class="fas fa-chevron-up" data-id${item.id}></i>
-        <p class="item-amount">${item.amount}</p>
+      </button>
+      <p class="item-amount">${item.amount}</p>
+      <button class="subtract-amount">  
         <i class="fas fa-chevron-down" data-id"${item.id}></i>
+      </button>
       </div>`;
     cartContent.appendChild(div);
   }
@@ -148,10 +151,51 @@ class UserInterface {
   }
 
   clearShoppingCart() {
-    LocalStorage.setShoppingCart({});
-    cartContent.innerHTML = "";
-    shoppingCart = [];
+    this.hideShoppingCart();
+    while (cartContent.children.length > 0) {
+      cartContent.removeChild(cartContent.children[0]);
+    }
+    //combine
+    let cartItems = shoppingCart.map((item) => item.id);
+    cartItems.forEach((id: any) => this.removeItem(id));
+  }
+
+  removeItem(id: Item) {
+    shoppingCart = shoppingCart.filter((item) => item.id !== id);
     this.setShoopingCartValues(shoppingCart);
+    LocalStorage.setShoppingCart(shoppingCart);
+    let addBtn: any = this.getAddToCartBtn(id);
+    addBtn.innerHTML = false;
+    addBtn.innerHTML = `<i class="fas fa-shopping-cart" aria-hidden="true"></i>Add to cart`;
+  }
+
+  getAddToCartBtn(id: any) {
+    return addToCartBtn.find((btn: any) => btn.dataset.id === id);
+  }
+  cartLogic() {
+    // get clear Cart shoppingBtn remove all items
+    clearCartBtn.addEventListener("click", () => this.clearShoppingCart());
+
+    cartContent.addEventListener("click", (e: any) => {
+      let target = e.target.classList.contains("add-amount");
+      console.log(target);
+      // switch (key) {
+      //   case "add-amount":
+
+      //     break;
+      //     case "subtract-amount":
+
+      //       break;
+      //     case "remove":
+
+      //       break;
+
+      //   default:
+      //     break;
+      // }
+      //check classlist maybe by using switch
+      console.log(e.target);
+    });
   }
 }
 
@@ -191,5 +235,6 @@ document.addEventListener("DOMContentLoaded", () => {
     })
     .then(() => {
       ui.getImgBtn();
+      ui.cartLogic();
     });
 });
