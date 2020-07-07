@@ -129,7 +129,7 @@ class UserInterface {
         <span class="remove-item" data-id=${item.id}>remove item</span>
       </div>
       <div>
-      <button class=" add-amount">
+      <button class="add-amount">
         <i class="fas fa-chevron-up" data-id${item.id}></i>
       </button>
       <p class="item-amount">${item.amount}</p>
