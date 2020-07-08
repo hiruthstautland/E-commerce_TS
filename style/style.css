@@ -19,11 +19,43 @@
   box-sizing: border-box;
 }
 body {
+  width: 100vw;
   color: var(--mainBlack);
   background: var(--mainWhite);
   font-family: "Lato", sans-serif;
 }
-
+.app-btn {
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: var(--mainTransition);
+  padding: 1rem;
+}
+.app-btn:hover {
+  background: transparent;
+  color: var(--primaryColorBtn);
+}
+.app-btn:focus {
+  outline: none;
+}
+.primary-btn {
+  width: 80%;
+  border: 1px solid var(--primaryColorBtn);
+  background: var(--primaryColorBtn);
+  color: var(--mainGrey);
+  font-size: 1rem;
+  letter-spacing: var(--mainSpacing);
+}
+.secondary-btn {
+  width: 80%;
+  border: solid 2px var(--secondaryColorBtn);
+  background: var(--mainGrey);
+  letter-spacing: var(--mainSpacing);
+}
+.transparentBtn {
+  border: none;
+  background: transparent;
+  padding: 4px 0 4px 0;
+}
 /* --------------- Navbar ---------------- */
 .navbar {
   position: sticky;
@@ -87,24 +119,7 @@ body {
   letter-spacing: var(--mainSpacing);
   margin-bottom: 3rem;
 }
-.primary-btn {
-  padding: 1rem 3rem;
-  text-transform: uppercase;
-  letter-spacing: var(--mainSpacing);
-  font-size: 1rem;
-  background: var(--primaryColorBtn);
-  color: var(--mainGrey);
-  border: 1px solid var(--primaryColorBtn);
-  transition: var(--mainTransition);
-  cursor: pointer;
-}
-.primary-btn:hover {
-  background: transparent;
-  color: var(--primaryColorBtn);
-}
-.primary-btn:focus {
-  outline: none;
-}
+
 .products {
   padding: 4rem 0;
 }
@@ -250,9 +265,16 @@ body {
   text-transform: capitalize;
   letter-spacing: var(--mainSpacing);
 }
-.cart-item h5 {
+/* .cart-item h5 {
   margin: 0.5rem 0;
   letter-spacing: var(--mainSpacing);
+} */
+.item-amount-container {
+  height: 75px;
+  width: 50px;
+  display: flex;
+  flex-flow: column;
+  justify-content: space-around;
 }
 .item-amount {
   text-align: center;
@@ -260,6 +282,7 @@ body {
 .remove-item {
   color: grey;
   cursor: pointer;
+  text-transform: none;
 }
 .fa-chevron-up,
 .fa-chevron-down {
@@ -269,13 +292,13 @@ body {
 /*---------- End of Cart Item -------------------- */
 
 .cart-footer {
-  margin-top: 2rem;
+  min-height: 150px;
+  display: flex;
+  flex-flow: row wrap;
+  justify-content: space-around;
+  align-content: space-between;
   letter-spacing: var(--mainSpacing);
-  text-align: center;
-}
-.cart-footer h3 {
   text-transform: capitalize;
-  margin-bottom: 1rem;
 }
 
 /* --------------- End of Cart ---------------- */

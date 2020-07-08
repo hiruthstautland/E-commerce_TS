@@ -128,12 +128,18 @@ class UserInterface {
       <div>
         <h4>${item.title}</h4>
         <h4>${item.price}</h4>
-        <span class="remove-item remove" data-id=${item.id}>remove item</span>
+        <button class="app-btn remove-item remove transparentBtn" data-id="${item.id}">
+          <i class="fa fa-times-circle" aria-hidden="true"></i>
+        </button>
       </div>
-      <div>
-        <i class="fas fa-chevron-up" data-id=${item.id}></i>
-      <p class="item-amount">${item.amount}</p>
-        <i class="fas fa-chevron-down" data-id=${item.id}></i>
+      <div class="item-amount-container">
+        <button class="app-btn transparentBtn amount-up">
+          <i class="fas fa-chevron-up" data-id="${item.id}"></i>
+        </button>
+        <strong class="item-amount">${item.amount}</strong>
+        <button class="app-btn transparentBtn amount-down">
+          <i class="fas fa-chevron-down" data-id="${item.id}"></i>
+        </button>
       </div>`;
     cartContent.appendChild(div);
   }
@@ -180,30 +186,50 @@ class UserInterface {
   }
   cartLogic() {
     clearCartBtn.addEventListener("click", () => this.clearShoppingCart());
-
     cartContent.addEventListener("click", (e: any) => {
-      let targetClass = [...e.target.classList];
       let targetElem = e.target;
-      let id = targetElem.dataset.id;
+      let targetClass = [...targetElem.parentElement.classList];
+      let id = targetElem.parentElement.dataset.id;
+      let item = shoppingCart.find((item) => item.id === id);
+      let itemAmount = <HTMLElement>(
+        targetElem.parentElement.parentElement.children[1]
+      );
       targetClass.map((value: any) => {
         switch (value) {
-          // just use fav- up class
-          case "fa-chevron-up":
-            console.log(id);
-            console.log(targetElem);
-
+          case "amount-up":
+            if (item?.amount === undefined || item?.amount === null) {
+              return;
+            } else {
+              item.amount += 1;
+            }
+            itemAmount.innerHTML = `${item?.amount}`;
             break;
-          case "fa-chevron-down":
-            console.log("minus");
+          case "amount-down":
+            if (
+              item?.amount === undefined ||
+              item?.amount === null ||
+              item?.amount <= 1
+            ) {
+              return;
+            } else {
+              item.amount -= 1;
+            }
+            itemAmount.innerHTML = `${item?.amount}`;
             break;
           case "remove":
+            console.log(id);
             this.removeItem(id);
-            cartContent.removeChild(targetElem.parentElement.parentElement);
+            cartContent.removeChild(
+              targetElem.parentElement.parentElement.parentElement
+            );
             break;
           default:
             break;
         }
       });
+
+      LocalStorage.saveShoppingCart(shoppingCart);
+      this.setShoopingCartValues(shoppingCart);
     });
   }
 }
