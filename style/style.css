@@ -188,7 +188,7 @@ body {
   width: 100%;
   height: 100%;
   transition: var(--mainTransition);
-  background: rgb(17, 68, 1, 0.3);
+  background: #c5d3d633;
   z-index: 2;
   visibility: hidden;
 }

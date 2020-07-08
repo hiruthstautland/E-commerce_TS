@@ -43,11 +43,11 @@ class Products {
 // Displaying Products  - TODO: avoid casting to any
 class UserInterface {
   runApplication() {
-    shoppingCart = [LocalStorage.getShoppingCart()];
+    shoppingCart = LocalStorage.getShoppingCart();
     this.setShoopingCartValues(shoppingCart);
     this.populateShoppingCart(shoppingCart);
     // combine hide and show functions so one can toggle
-    closeCartBtn.addEventListener("click", this.hideShoppingCart);
+    closeCartBtn.addEventListener("click", UserInterface.hideShoppingCart);
     cartBtn.addEventListener("click", this.showShoppingCart);
   }
 
@@ -91,11 +91,13 @@ class UserInterface {
         e.target.innerText = "in Cart";
         e.target.disabled = true;
         // get product from prod storage
-        let shoppingCartItem = { ...LocalStorage.getProduct(id), amount: 1 };
+        let shoppingCartItem: Item = {
+          ...LocalStorage.getProduct(id),
+          amount: 1,
+        };
         // add product to shopping cart and to cart storage
-        shoppingCart.push(shoppingCartItem);
-        // shoppingCart = [...shoppingCart, shoppingCartItem];
-        LocalStorage.setShoppingCart(shoppingCartItem);
+        shoppingCart = [...shoppingCart, shoppingCartItem];
+        LocalStorage.saveShoppingCart(shoppingCart);
         // set cart values
         this.setShoopingCartValues(shoppingCart);
         // display cart items
@@ -125,17 +127,13 @@ class UserInterface {
       <img src="${item.image}" alt="${item.title}" />
       <div>
         <h4>${item.title}</h4>
-        <h4<${item.price}</h4>
-        <span class="remove-item" data-id=${item.id}>remove item</span>
+        <h4>${item.price}</h4>
+        <span class="remove-item remove" data-id=${item.id}>remove item</span>
       </div>
       <div>
-      <button class="add-amount">
-        <i class="fas fa-chevron-up" data-id${item.id}></i>
-      </button>
+        <i class="fas fa-chevron-up" data-id=${item.id}></i>
       <p class="item-amount">${item.amount}</p>
-      <button class="subtract-amount">  
-        <i class="fas fa-chevron-down" data-id"${item.id}></i>
-      </button>
+        <i class="fas fa-chevron-down" data-id=${item.id}></i>
       </div>`;
     cartContent.appendChild(div);
   }
@@ -143,15 +141,23 @@ class UserInterface {
   showShoppingCart() {
     cartOverlay.classList.add("transparentBg");
     cartDOM.classList.add("showCart");
+    cartOverlay.addEventListener("click", (e: any) => {
+      if (e.target.classList.contains("cart-overlay")) {
+        UserInterface.hideShoppingCart();
+      }
+    });
   }
 
-  hideShoppingCart() {
+  static hideShoppingCart() {
     cartOverlay.classList.remove("transparentBg");
     cartDOM.classList.remove("showCart");
+    cartOverlay.removeEventListener("click", (e: any) => {
+      UserInterface.hideShoppingCart();
+    });
   }
 
   clearShoppingCart() {
-    this.hideShoppingCart();
+    UserInterface.hideShoppingCart();
     while (cartContent.children.length > 0) {
       cartContent.removeChild(cartContent.children[0]);
     }
@@ -163,7 +169,7 @@ class UserInterface {
   removeItem(id: Item) {
     shoppingCart = shoppingCart.filter((item) => item.id !== id);
     this.setShoopingCartValues(shoppingCart);
-    LocalStorage.setShoppingCart(shoppingCart);
+    LocalStorage.saveShoppingCart(shoppingCart);
     let addBtn: any = this.getAddToCartBtn(id);
     addBtn.innerHTML = false;
     addBtn.innerHTML = `<i class="fas fa-shopping-cart" aria-hidden="true"></i>Add to cart`;
@@ -173,28 +179,31 @@ class UserInterface {
     return addToCartBtn.find((btn: any) => btn.dataset.id === id);
   }
   cartLogic() {
-    // get clear Cart shoppingBtn remove all items
     clearCartBtn.addEventListener("click", () => this.clearShoppingCart());
 
     cartContent.addEventListener("click", (e: any) => {
-      let target = e.target.classList.contains("add-amount");
-      console.log(target);
-      // switch (key) {
-      //   case "add-amount":
+      let targetClass = [...e.target.classList];
+      let targetElem = e.target;
+      let id = targetElem.dataset.id;
+      targetClass.map((value: any) => {
+        switch (value) {
+          // just use fav- up class
+          case "fa-chevron-up":
+            console.log(id);
+            console.log(targetElem);
 
-      //     break;
-      //     case "subtract-amount":
-
-      //       break;
-      //     case "remove":
-
-      //       break;
-
-      //   default:
-      //     break;
-      // }
-      //check classlist maybe by using switch
-      console.log(e.target);
+            break;
+          case "fa-chevron-down":
+            console.log("minus");
+            break;
+          case "remove":
+            this.removeItem(id);
+            cartContent.removeChild(targetElem.parentElement.parentElement);
+            break;
+          default:
+            break;
+        }
+      });
     });
   }
 }
@@ -210,7 +219,7 @@ class LocalStorage {
     );
     return products.find((product: any) => product.id === id);
   }
-  static setShoppingCart(shoppingCartItem: object) {
+  static saveShoppingCart(shoppingCartItem: object) {
     localStorage.setItem("shoppingCart", JSON.stringify(shoppingCartItem));
   }
   static getShoppingCart() {
