@@ -22,3 +22,4 @@ npm run build
 ```
 
 ## License
+The project is based on [John Smilga's tutorial](https://github.com/john-smilga/setup-files-js-comfy-house)
