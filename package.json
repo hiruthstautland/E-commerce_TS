@@ -15,12 +15,12 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/hiruthstautland/E-commerce_VanillaJS.git"
+    "url": "git+https://github.com/hiruthstautland/E-commerce_TS.git"
   },
   "author": "HMS",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/hiruthstautland/E-commerce_VanillaJS/issues"
+    "url": "https://github.com/hiruthstautland/E-commerce_TS/issues"
   },
-  "homepage": "https://github.com/hiruthstautland/E-commerce_VanillaJS#readme"
+  "homepage": "https://github.com/hiruthstautland/E-commerce_TS#readme"
 }
